@@ -1,0 +1,54 @@
+# This file is based on https://github.com/github/gitignore/blob/main/Unity.gitignore
+#
+# Lines starting with '#' are comments.
+#
+# Unity-generated files and folders
+# =================================
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+[Uu]ser[Ss]ettings/
+
+# Asset meta files are handled by Unity's Asset Database, but we still want to ignore
+# all of them in .gitignore, and then force-add the ones we do want.
+# This is to avoid committing .meta files for assets that are not actually committed.
+*.meta
+
+# Visual Studio / Rider specific
+# ==============================
+.vs/
+.vscode/
+.idea/
+*.sln
+*.csproj
+*.unityproj
+*.ncrunch*
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Other
+# =====
+sysinfo.txt
+*.apk
+*.aab
+*.app
+*.exe
+*.dll
+*.so
+*.bundle
+
+# Crashlytics generated files
+Assets/StreamingAssets/crashlytics-build.properties
