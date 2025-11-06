@@ -6,6 +6,8 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class PlayerPlatformerController : MonoBehaviour
 {
+    [Header("Combat")]
+public Collider2D hitboxCollider;
     [Header("Movement Settings")]
     public float moveSpeed = 7f;
     public float jumpForce = 14f;
@@ -116,9 +118,25 @@ public class PlayerPlatformerController : MonoBehaviour
     private void OnDrawGizmos()
     {
         if (groundCheckPoint == null) return;
-        
+
         // Draw a red wire sphere at the ground check position
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
     }
+    
+    public void EnableHitbox()
+{
+    if (hitboxCollider != null)
+    {
+        hitboxCollider.enabled = true;
+    }
+}
+
+public void DisableHitbox()
+{
+    if (hitboxCollider != null)
+    {
+        hitboxCollider.enabled = false;
+    }
+}
 }
