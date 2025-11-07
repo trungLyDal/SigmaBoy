@@ -138,7 +138,7 @@ public class EnemyPatrol : MonoBehaviour
             if (attackTimer <= 0f)
             {
                 Attack();
-                attackTimer = attackCooldown;
+                attackTimer = attackCooldown; // This line is now active
             }
         }
         else
@@ -148,14 +148,22 @@ public class EnemyPatrol : MonoBehaviour
             float directionToPlayer = playerTransform.position.x > transform.position.x ? 1 : -1;
             moveDirection = directionToPlayer;
         }
+
+        // --- NEW (uncomment) ---
+        // Count down attack timer
+        if (attackTimer > 0f)
+        {
+            attackTimer -= Time.deltaTime;
+        }
     }
 
     void Attack()
     {
-        // We'll add this next. For now, just log.
         Debug.Log("Enemy is attacking!");
-        // animator.SetTrigger("Attack"); // We will add this trigger
-    }
+        
+        // --- NEW LINE ---
+        // Tell the animator to play the attack
+animator.SetBool("isAttacking", true);    }
 
     void SwitchTarget()
     {

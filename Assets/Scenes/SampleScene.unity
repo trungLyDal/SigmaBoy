@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 436462861}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -275,7 +275,7 @@ Transform:
   m_GameObject: {fileID: 436462855}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.61, y: 0.29, z: 0}
+  m_LocalPosition: {x: -18.39, y: -1.52, z: 0}
   m_LocalScale: {x: 1.0037, y: 1.0062, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1389,7 +1389,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.61, y: 3.9139998, z: -10}
+  m_LocalPosition: {x: -18.39, y: 2.1039999, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1712,7 +1712,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a634857244bc8d94fb76d24dcef1c103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 3
+  maxHealth: 10
   deathAnimationTime: 1
 --- !u!95 &1114393197
 Animator:
@@ -1778,6 +1778,9 @@ MonoBehaviour:
   pointB: {fileID: 2125978738}
   moveSpeed: 3
   idleTime: 1
+  playerTransform: {fileID: 436462860}
+  attackRange: 1.5
+  attackCooldown: 1
 --- !u!1 &1215046600
 GameObject:
   m_ObjectHideFlags: 0
@@ -4114,7 +4117,7 @@ Transform:
   m_GameObject: {fileID: 1458323066}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.61, y: 3.9139998, z: -10}
+  m_LocalPosition: {x: -18.39, y: 2.1039999, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
