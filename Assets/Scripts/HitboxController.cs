@@ -4,16 +4,24 @@ public class HitboxController : MonoBehaviour
 {
     // This function is called by Unity's physics engine
     // whenever something *enters* this trigger.
-    void OnTriggerEnter2D(Collider2D other)
+   void OnTriggerEnter2D(Collider2D other)
     {
-        // We check if the object we hit has the "Enemy" tag.
+        // We still check for the "Enemy" tag
         if (other.CompareTag("Enemy"))
         {
-            // If it's an enemy, print a "Hit!" message.
-            Debug.Log("Hit the enemy!");
+            // --- THIS IS THE NEW CODE ---
             
-            // Later, we can replace this with:
-            // other.GetComponent<EnemyHealth>().TakeDamage(10);
+            // Try to get the EnemyHealth script from the object we hit
+            EnemyHealth enemy = other.GetComponent<EnemyHealth>();
+
+            // Check if the enemy actually has the health script
+            if (enemy != null)
+            {
+                // If it does, call its TakeDamage function
+                enemy.TakeDamage(1); // We'll say our attack does 1 damage
+            }
+            
+            // --- END NEW CODE ---
         }
     }
 }
