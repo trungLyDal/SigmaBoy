@@ -333,7 +333,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 5
   invulnerabilityTime: 0.5
-  deathCleanupDelay: 2
+  deathCleanupDelay: 1
 --- !u!1 &519155507
 GameObject:
   m_ObjectHideFlags: 0
