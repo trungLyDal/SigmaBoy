@@ -13907,7 +13907,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parallaxSpeedX: 0.961
-  parallaxSpeedY: 0.5
+  parallaxSpeedY: 0.732
   cameraTransform: {fileID: 1458323068}
 --- !u!1 &2125978737
 GameObject:
