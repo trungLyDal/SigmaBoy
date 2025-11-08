@@ -331,7 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f87f2d48200f9cb4fa3482d4b411c5d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5
+  maxHealth: 10
   invulnerabilityTime: 0.5
   deathCleanupDelay: 1
 --- !u!1 &519155507
@@ -2670,14 +2670,14 @@ MonoBehaviour:
   pointB: {fileID: 2125978738}
   enemyHitboxCollider: {fileID: 1705479094}
   attackRange: 1.5
-  attackCooldown: 2
+  attackCooldown: 1
   attackDamage: 1
   playerLayer:
     serializedVersion: 2
     m_Bits: 1
   attackPoint: {fileID: 1705479092}
-  attackRadius: 0.5
-  moveSpeed: 3
+  attackRadius: 3
+  moveSpeed: 5
   idleTime: 1
   playerTransform: {fileID: 436462860}
   sightRange: 5
