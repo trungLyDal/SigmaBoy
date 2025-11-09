@@ -390,7 +390,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86a17563e221e714a90506e92631ade6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitboxCollider: {fileID: 953089918}
+  hitbox: {fileID: 953089919}
   moveSpeed: 10
   jumpForce: 20
   groundCheckPoint: {fileID: 1215046601}
@@ -4673,6 +4673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6abac3eb1e88a394e991d38c139ae924, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damageAmount: 1
 --- !u!1 &1002891822
 GameObject:
   m_ObjectHideFlags: 0
