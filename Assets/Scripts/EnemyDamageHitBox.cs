@@ -6,15 +6,13 @@ public class EnemyDamageHitbox : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Check if the object we hit is the Player
         if (other.CompareTag("Player"))
         {
-            // Try to get the PlayerHealth component
             PlayerHealth player = other.GetComponent<PlayerHealth>();
 
             if (player != null)
             {
-                player.TakeDamage(damageAmount);
+                player.TakeDamage(damageAmount, transform.parent.gameObject);
             }
         }
     }

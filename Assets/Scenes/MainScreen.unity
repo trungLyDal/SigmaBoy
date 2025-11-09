@@ -566,6 +566,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 10
+  knockbackForce: 5
+  knockbackDuration: 0.25
   invulnerabilityTime: 0.5
   deathCleanupDelay: 1
 --- !u!1 &464535086
@@ -5002,7 +5004,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointA: {fileID: 1803082475}
   pointB: {fileID: 2125978738}
-  enemyHitboxCollider: {fileID: 0}
+  enemyHitboxCollider: {fileID: 1705479094}
   attackRange: 1.5
   attackCooldown: 1
   attackDamage: 1
@@ -5262,7 +5264,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointA: {fileID: 1803082475}
   pointB: {fileID: 2125978738}
-  enemyHitboxCollider: {fileID: 0}
+  enemyHitboxCollider: {fileID: 1147443386}
   attackRange: 1.5
   attackCooldown: 1
   attackDamage: 1
@@ -5275,7 +5277,7 @@ MonoBehaviour:
   idleTime: 1
   playerTransform: {fileID: 436462860}
   sightRange: 5
-  chaseStopDistance: 10
+  chaseStopDistance: 20
 --- !u!50 &1325031173
 Rigidbody2D:
   serializedVersion: 4

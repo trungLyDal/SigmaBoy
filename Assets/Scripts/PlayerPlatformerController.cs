@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -8,6 +9,11 @@ public class PlayerPlatformerController : MonoBehaviour
     public float moveSpeed = 7f;
     private bool isAttacking = false;
     public float jumpForce = 14f;
+
+    private bool isKnockedBack = false;
+
+    private Coroutine knockbackCoroutine;
+
 private bool isFacingRight = true;
     public Transform groundCheckPoint;
     public LayerMask groundLayer;
@@ -43,6 +49,7 @@ private bool isFacingRight = true;
 
     void Update()
     {
+        if (isKnockedBack) return;
         horizontalInput = Input.GetAxisRaw("Horizontal");
         Flip();
         jumpBufferCounter -= Time.deltaTime;
@@ -101,7 +108,7 @@ private bool isFacingRight = true;
             isGrounded = false;
             coyoteTimeCounter -= Time.deltaTime;
         }
-
+        if (isKnockedBack) return;
         if (isAttacking)
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
@@ -117,6 +124,37 @@ private bool isFacingRight = true;
             coyoteTimeCounter = 0f;
             jumpBufferCounter = 0f;
         }
+    }
+
+    public void TriggerKnockback(Vector2 direction, float force, float duration)
+    {
+        // Stop any previous knockback to prevent conflicts
+        if (knockbackCoroutine != null)
+        {
+            StopCoroutine(knockbackCoroutine);
+        }
+
+        // Start the new knockback
+        knockbackCoroutine = StartCoroutine(KnockbackRoutine(direction, force, duration));
+    }
+    
+    private IEnumerator KnockbackRoutine(Vector2 direction, float force, float duration)
+    {
+        // 1. Set the state
+        isKnockedBack = true;
+
+        // 2. Clear current velocity to make the knockback force consistent
+        rb.velocity = Vector2.zero;
+
+        // 3. Apply the knockback force
+        rb.AddForce(direction * force, ForceMode2D.Impulse);
+
+        // 4. Wait for the knockback duration to end
+        yield return new WaitForSeconds(duration);
+
+        // 5. Reset the state
+        isKnockedBack = false;
+        knockbackCoroutine = null;
     }
 
     private void OnDrawGizmos()
@@ -167,4 +205,15 @@ private bool isFacingRight = true;
             transform.localScale = new Vector3(1, 1, 1);
         }
     }
+
+
+public void SetKnockedBack(bool isKnockedBackState)
+{
+    isKnockedBack = isKnockedBackState;
+}
+
+public void ApplyKnockback(Vector2 direction, float force)
+{
+    rb.AddForce(direction * force, ForceMode2D.Impulse);
+}
 }
