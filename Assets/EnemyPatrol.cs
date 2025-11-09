@@ -91,7 +91,6 @@ public class EnemyPatrol : MonoBehaviour
                 // Timer will be set in FinishAttack() for better sync, but setting it here is also fine.
                 RunChaseLogic(true); // Stop movement during attack
             }
-            // ⭐ PRIORITY 2: PAUSE/COOLDOWN STATE (Prevents running/pushing)
             else if (attackTimer > 0f)
             {
                 RunChaseLogic(true); // Stop movement while on cooldown
@@ -143,11 +142,9 @@ public class EnemyPatrol : MonoBehaviour
         }
         else // Moving
         {
-            // Determine direction to the current target point
             float directionToTarget = currentTarget.position.x > transform.position.x ? 1 : -1;
             moveDirection = directionToTarget;
 
-            // NEW: Check if the enemy needs to turn to face the target
             bool shouldBeFacingRight = directionToTarget > 0;
             if (shouldBeFacingRight != isFacingRight)
             {
@@ -177,11 +174,11 @@ public class EnemyPatrol : MonoBehaviour
 
         if (isExecutingAttackOrCooldown)
         {
-            moveDirection = 0f; // Stop movement when attacking OR in cooldown
+            moveDirection = 0f; 
         }
         else
         {
-            moveDirection = directionToPlayer; // Move towards the player
+            moveDirection = directionToPlayer; 
         }
     }
 
@@ -204,12 +201,9 @@ public class EnemyPatrol : MonoBehaviour
         transform.localScale = newScale;
     }
 
-    // --- Animation Event Functions (Called by the Attack animation clip) ---
-    // !!! IMPORTANT: This MUST be called as an Event near the END of your Attack animation clip !!!
     public void FinishAttack()
     {
         animator.SetBool("isAttacking", false);
-        // ⭐ REVISED: Ensure the cooldown timer starts NOW, locking movement until it expires.
         attackTimer = attackCooldown; 
         Debug.Log("Attack finished. Starting cooldown.");
     }
@@ -232,7 +226,7 @@ public class EnemyPatrol : MonoBehaviour
             if (playerHealth != null)
             {
                 // This call triggers the player's 'isHurt' animation
-                playerHealth.TakeDamage(attackDamage);
+                playerHealth.TakeDamage(attackDamage, gameObject);
                 Debug.Log($"Enemy hit {hit.name} for {attackDamage} damage on Animation Event frame.");
                 return; 
             }
@@ -249,11 +243,9 @@ public class EnemyPatrol : MonoBehaviour
         if (enemyHitboxCollider != null) { enemyHitboxCollider.enabled = false; }
     }
 
-    // --- Detection Triggers (Optional, can be used for a closer range alert) ---
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // This makes the enemy alert even if sight checks miss (e.g., player jumps behind it)
         if (other.CompareTag("Player"))
         {
             isChasing = true;

@@ -1,13 +1,19 @@
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 public class PlayerPlatformerController : MonoBehaviour
 {
-    public Collider2D hitboxCollider;
-    public float moveSpeed = 7f;
+    public HitboxController hitbox;   
+ public float moveSpeed = 7f;
     private bool isAttacking = false;
     public float jumpForce = 14f;
+
+    private bool isKnockedBack = false;
+
+    private Coroutine knockbackCoroutine;
+
 private bool isFacingRight = true;
     public Transform groundCheckPoint;
     public LayerMask groundLayer;
@@ -43,6 +49,7 @@ private bool isFacingRight = true;
 
     void Update()
     {
+        if (isKnockedBack) return;
         horizontalInput = Input.GetAxisRaw("Horizontal");
         Flip();
         jumpBufferCounter -= Time.deltaTime;
@@ -101,7 +108,7 @@ private bool isFacingRight = true;
             isGrounded = false;
             coyoteTimeCounter -= Time.deltaTime;
         }
-
+        if (isKnockedBack) return;
         if (isAttacking)
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
@@ -119,6 +126,37 @@ private bool isFacingRight = true;
         }
     }
 
+    public void TriggerKnockback(Vector2 direction, float force, float duration)
+    {
+        // Stop any previous knockback to prevent conflicts
+        if (knockbackCoroutine != null)
+        {
+            StopCoroutine(knockbackCoroutine);
+        }
+
+        // Start the new knockback
+        knockbackCoroutine = StartCoroutine(KnockbackRoutine(direction, force, duration));
+    }
+    
+    private IEnumerator KnockbackRoutine(Vector2 direction, float force, float duration)
+    {
+        // 1. Set the state
+        isKnockedBack = true;
+
+        // 2. Clear current velocity to make the knockback force consistent
+        rb.velocity = Vector2.zero;
+
+        // 3. Apply the knockback force
+        rb.AddForce(direction * force, ForceMode2D.Impulse);
+
+        // 4. Wait for the knockback duration to end
+        yield return new WaitForSeconds(duration);
+
+        // 5. Reset the state
+        isKnockedBack = false;
+        knockbackCoroutine = null;
+    }
+
     private void OnDrawGizmos()
     {
         if (groundCheckPoint == null) return;
@@ -126,13 +164,23 @@ private bool isFacingRight = true;
         Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
     }
 
-    public void EnableHitbox()
+    public void EnableAttack1Hitbox()
+{
+    if (hitbox != null)
     {
-        if (hitboxCollider != null)
-        {
-            hitboxCollider.enabled = true;
-        }
+        hitbox.damageAmount = 1; // Set damage to 1
+        hitbox.GetComponent<Collider2D>().enabled = true;
     }
+}
+
+public void EnableAttack2Hitbox()
+{
+    if (hitbox != null)
+    {
+        hitbox.damageAmount = 2; // Set damage to 2
+        hitbox.GetComponent<Collider2D>().enabled = true;
+    }
+}
 
     public void AttackLock()
     {
@@ -145,12 +193,13 @@ private bool isFacingRight = true;
     }
 
     public void DisableHitbox()
+{
+    if (hitbox != null) 
     {
-        if (hitboxCollider != null)
-        {
-            hitboxCollider.enabled = false;
-        }
+        hitbox.GetComponent<Collider2D>().enabled = false;
     }
+}  
+    
 
     private void Flip()
     {
@@ -167,4 +216,15 @@ private bool isFacingRight = true;
             transform.localScale = new Vector3(1, 1, 1);
         }
     }
+
+
+public void SetKnockedBack(bool isKnockedBackState)
+{
+    isKnockedBack = isKnockedBackState;
+}
+
+public void ApplyKnockback(Vector2 direction, float force)
+{
+    rb.AddForce(direction * force, ForceMode2D.Impulse);
+}
 }
