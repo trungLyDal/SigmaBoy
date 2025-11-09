@@ -6,6 +6,8 @@ public class PlayerHealth : MonoBehaviour
     public int maxHealth = 3;
     private int currentHealth;
 
+    private UIManager uiManager;
+
 [Header("Knockback Settings")]
     public float knockbackForce = 15f; 
     public float knockbackDuration = 0.2f;
@@ -28,8 +30,14 @@ private PlayerPlatformerController playerMovementScript;
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         mainCollider = GetComponent<Collider2D>(); // Assuming the main player collider is here
-        
-        playerMovementScript = GetComponent<PlayerPlatformerController>(); 
+
+        playerMovementScript = GetComponent<PlayerPlatformerController>();
+
+        uiManager = FindObjectOfType<UIManager>();
+        if (uiManager != null)
+        {
+            uiManager.SetMaxHealth(maxHealth);
+        }
 
         // Fail-safe check
         if (animator == null || rb == null || mainCollider == null)
@@ -47,7 +55,12 @@ public void TakeDamage(int damage, GameObject damageSource)
     }
 
     currentHealth -= damage;
-    Debug.Log("Player took " + damage + " damage! Remaining Health: " + currentHealth);
+        Debug.Log("Player took " + damage + " damage! Remaining Health: " + currentHealth);
+    
+    if (uiManager != null)
+        {
+            uiManager.UpdateHealth(currentHealth);
+        }
 
     // Trigger the isHurt animation
     if (animator != null)
@@ -99,11 +112,16 @@ public void TakeDamage(int damage, GameObject damageSource)
         rb.velocity = Vector2.zero;
         rb.isKinematic = true; // Lock physics
     }
+
+        // 2. Trigger the Death Animation
+        if (animator != null)
+        {
+            animator.SetBool("isDead", true);
+        }
     
-    // 2. Trigger the Death Animation
-    if (animator != null)
+    if (uiManager != null)
     {
-        animator.SetBool("isDead", true); 
+        uiManager.ShowGameOverScreen();
     }
 
     StartCoroutine(HandleDeathCleanup());
