@@ -13,23 +13,22 @@ public class PlayerHealth : MonoBehaviour
     public float knockbackDuration = 0.2f;
 
     [Header("Components")]
-    // Added references to components needed for controlling the player on death/hit
+   
     private Animator animator;
     private Rigidbody2D rb;
     private Collider2D mainCollider;
 private PlayerPlatformerController playerMovementScript;
     [Header("Damage Settings")]
     private bool isInvulnerable = false;
-    public float invulnerabilityTime = 0.5f; // Time player flashes/can't take damage
-    public float deathCleanupDelay = 1.5f; // Time to wait for the death animation
+    public float invulnerabilityTime = 0.5f; 
+    public float deathCleanupDelay = 1.5f; 
 
     void Start()
     {
         currentHealth = maxHealth;
-        // Get required components
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        mainCollider = GetComponent<Collider2D>(); // Assuming the main player collider is here
+        mainCollider = GetComponent<Collider2D>(); 
 
         playerMovementScript = GetComponent<PlayerPlatformerController>();
 
@@ -48,7 +47,6 @@ private PlayerPlatformerController playerMovementScript;
 
 public void TakeDamage(int damage, GameObject damageSource)
 {
-    // Check if player can take damage or is already dying
     if (isInvulnerable || currentHealth <= 0)
     {
         return;
@@ -68,7 +66,6 @@ public void TakeDamage(int damage, GameObject damageSource)
         animator.SetTrigger("isHurt");
     }
 
-    // ⭐ --- APPLY THE KNOCKBACK --- ⭐
     if (playerMovementScript != null && damageSource != null)
     {
         // Calculate direction away from the enemy
@@ -80,7 +77,6 @@ public void TakeDamage(int damage, GameObject damageSource)
         // Call the controller's knockback function
         playerMovementScript.TriggerKnockback(knockbackDirection, knockbackForce, knockbackDuration);
     }
-    // ⭐ --- END OF NEW CODE --- ⭐
 
     if (currentHealth <= 0)
     {
