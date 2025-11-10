@@ -5,8 +5,8 @@ using System.Collections;
 [RequireComponent(typeof(Animator))]
 public class PlayerPlatformerController : MonoBehaviour
 {
-    public HitboxController hitbox;   
- public float moveSpeed = 7f;
+    public HitboxController hitbox;
+    public float moveSpeed = 7f;
     private bool isAttacking = false;
     public float jumpForce = 14f;
 
@@ -14,13 +14,13 @@ public class PlayerPlatformerController : MonoBehaviour
 
     private Coroutine knockbackCoroutine;
 
-private bool isFacingRight = true;
+    private bool isFacingRight = true;
     public Transform groundCheckPoint;
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.2f;
 
     public float jumpCutMultiplier = 0.5f;
-    public float coyoteTime = 0.1f; 
+    public float coyoteTime = 0.1f;
 
     public float jumpBufferTime = 0.1f;
     private float coyoteTimeCounter;
@@ -28,14 +28,22 @@ private bool isFacingRight = true;
 
     private Rigidbody2D rb;
     private Animator animator;
+    private TrailRenderer trailRenderer; 
 
     private float horizontalInput;
     private bool isGrounded;
 
+    [Header("Dashing")]
+    [SerializeField] private float dashVelocity = 10f;
+    [SerializeField] private float dashDuration = 1f;
+    private Vector2 dashDirection;
+    private bool isDashing;
+    private bool canDash = true;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        trailRenderer = GetComponent<TrailRenderer>(); 
 
         if (groundCheckPoint == null)
         {
@@ -50,9 +58,37 @@ private bool isFacingRight = true;
     void Update()
     {
         if (isKnockedBack) return;
-        horizontalInput = Input.GetAxisRaw("Horizontal");
+        
+        if (!isDashing) 
+        {
+            horizontalInput = Input.GetAxisRaw("Horizontal");
+        }
+        
         Flip();
         jumpBufferCounter -= Time.deltaTime;
+
+        var dashInput = Input.GetKeyDown(KeyCode.LeftShift); 
+
+        if (dashInput && canDash && !isDashing)
+        {
+            isDashing = true;
+            canDash = false;
+            dashDirection = new Vector2(horizontalInput, Input.GetAxisRaw("Vertical")).normalized; 
+            trailRenderer.emitting = true;
+            if (dashDirection == Vector2.zero)
+            {
+                dashDirection = new Vector2(transform.localScale.x, 0); 
+            }
+            StartCoroutine(StopDashing());
+        }
+
+        animator.SetBool("isDashing", isDashing);
+
+
+        if (isGrounded)
+        {
+            canDash = true;
+        }
 
         if (Input.GetButtonDown("Jump"))
         {
@@ -71,11 +107,9 @@ private bool isFacingRight = true;
         {
             animator.SetTrigger("Attack");
         }
-
-        // Use KeyDown with KeyCode instead of GetButtonDown with the literal string
+        
         if (Input.GetKeyDown(KeyCode.R))
         {
-            // Send the "Attack2" signal to the Animator
             animator.SetTrigger("Attack2");
             if (!isAttacking)
             {
@@ -90,7 +124,6 @@ private bool isFacingRight = true;
             }
         }
 
-        // Update animator parameters every frame
         animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
         animator.SetFloat("yVelocity", rb.velocity.y);
         animator.SetBool("isGrounded", isGrounded);
@@ -108,7 +141,15 @@ private bool isFacingRight = true;
             isGrounded = false;
             coyoteTimeCounter -= Time.deltaTime;
         }
+        
         if (isKnockedBack) return;
+
+        if (isDashing)
+        {
+            rb.velocity = dashDirection * dashVelocity;
+            return; // Dashing overrides all other movement
+        }
+
         if (isAttacking)
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
@@ -126,33 +167,28 @@ private bool isFacingRight = true;
         }
     }
 
+    private IEnumerator StopDashing() 
+    {
+        yield return new WaitForSeconds(dashDuration);
+        isDashing = false;
+        trailRenderer.emitting = false;
+    }
+
     public void TriggerKnockback(Vector2 direction, float force, float duration)
     {
-        // Stop any previous knockback to prevent conflicts
         if (knockbackCoroutine != null)
         {
             StopCoroutine(knockbackCoroutine);
         }
-
-        // Start the new knockback
         knockbackCoroutine = StartCoroutine(KnockbackRoutine(direction, force, duration));
     }
-    
+
     private IEnumerator KnockbackRoutine(Vector2 direction, float force, float duration)
     {
-        // 1. Set the state
         isKnockedBack = true;
-
-        // 2. Clear current velocity to make the knockback force consistent
         rb.velocity = Vector2.zero;
-
-        // 3. Apply the knockback force
         rb.AddForce(direction * force, ForceMode2D.Impulse);
-
-        // 4. Wait for the knockback duration to end
         yield return new WaitForSeconds(duration);
-
-        // 5. Reset the state
         isKnockedBack = false;
         knockbackCoroutine = null;
     }
@@ -165,22 +201,22 @@ private bool isFacingRight = true;
     }
 
     public void EnableAttack1Hitbox()
-{
-    if (hitbox != null)
     {
-        hitbox.damageAmount = 1; // Set damage to 1
-        hitbox.GetComponent<Collider2D>().enabled = true;
+        if (hitbox != null)
+        {
+            hitbox.damageAmount = 1;
+            hitbox.GetComponent<Collider2D>().enabled = true;
+        }
     }
-}
 
-public void EnableAttack2Hitbox()
-{
-    if (hitbox != null)
+    public void EnableAttack2Hitbox()
     {
-        hitbox.damageAmount = 2; // Set damage to 2
-        hitbox.GetComponent<Collider2D>().enabled = true;
+        if (hitbox != null)
+        {
+            hitbox.damageAmount = 2;
+            hitbox.GetComponent<Collider2D>().enabled = true;
+        }
     }
-}
 
     public void AttackLock()
     {
@@ -193,23 +229,23 @@ public void EnableAttack2Hitbox()
     }
 
     public void DisableHitbox()
-{
-    if (hitbox != null) 
     {
-        hitbox.GetComponent<Collider2D>().enabled = false;
+        if (hitbox != null)
+        {
+            hitbox.GetComponent<Collider2D>().enabled = false;
+        }
     }
-}  
-    
 
     private void Flip()
     {
-        // Check if the input is moving left, but we are facing right
+        // Don't flip while attacking or dashing
+        if (isAttacking || isDashing) return; 
+
         if (isFacingRight && horizontalInput < 0f)
         {
             isFacingRight = false;
             transform.localScale = new Vector3(-1, 1, 1);
         }
-        // Check if the input is moving right, but we are facing left
         else if (!isFacingRight && horizontalInput > 0f)
         {
             isFacingRight = true;
@@ -218,13 +254,13 @@ public void EnableAttack2Hitbox()
     }
 
 
-public void SetKnockedBack(bool isKnockedBackState)
-{
-    isKnockedBack = isKnockedBackState;
-}
+    public void SetKnockedBack(bool isKnockedBackState)
+    {
+        isKnockedBack = isKnockedBackState;
+    }
 
-public void ApplyKnockback(Vector2 direction, float force)
-{
-    rb.AddForce(direction * force, ForceMode2D.Impulse);
-}
+    public void ApplyKnockback(Vector2 direction, float force)
+    {
+        rb.AddForce(direction * force, ForceMode2D.Impulse);
+    }
 }
