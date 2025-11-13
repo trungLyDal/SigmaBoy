@@ -263,4 +263,9 @@ public class PlayerPlatformerController : MonoBehaviour
     {
         rb.AddForce(direction * force, ForceMode2D.Impulse);
     }
+
+    public bool IsFacingRight()
+    {
+        return isFacingRight;
+    }
 }
