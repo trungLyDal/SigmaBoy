@@ -1,90 +1,76 @@
 using UnityEngine;
 using Cinemachine;
-using System.Collections; 
-
+using System.Collections;
 [RequireComponent(typeof(CinemachineVirtualCamera))]
 public class DynamicCameraOffset : MonoBehaviour
 {
-    [Header("Offset Settings")]
-    [Tooltip("Screen X when facing right (0 = left edge, 1 = right edge).")]
-    public float screenX_FacingRight = 0.25f;
+    [Header("Follow Settings")]
+    [Tooltip("Horizontal lead distance in world units when moving fast.")]
+    public float maxLookAhead = 1.5f;
 
-    [Tooltip("Screen X when facing left.")]
-    public float screenX_FacingLeft = 0.75f;
+    [Tooltip("How smoothly camera moves horizontally.")]
+    public float horizontalDamping = 5f;
 
-    [Tooltip("How long it takes to slide camera when flipping (seconds).")]
-    public float transitionDuration = 0.3f;
+    [Tooltip("How smoothly camera follows vertically.")]
+    public float verticalDamping = 3f;
 
-    [Tooltip("Delay before camera reacts to quick turn (seconds).")]
-    public float flipDelay = 0.15f;
+    [Tooltip("Minimum horizontal speed before look-ahead starts.")]
+    public float velocityThreshold = 0.05f;
+
+    [Tooltip("Vertical offset to keep more ground visible.")]
+    public float verticalOffset = 1.0f;
 
     private CinemachineVirtualCamera vcam;
     private CinemachineFramingTransposer transposer;
-    private PlayerPlatformerController playerController;
+    private Rigidbody2D playerRb;
 
-    private bool lastFacingRight = true;
-    private float flipTimer = 0f;
-    private Coroutine transitionRoutine;
+    private Vector3 targetOffset;
+    private Vector3 currentOffset;
 
     void Start()
     {
         vcam = GetComponent<CinemachineVirtualCamera>();
-
-        // ✅ Get the new-style Framing Transposer
         transposer = vcam.GetCinemachineComponent(CinemachineCore.Stage.Body) as CinemachineFramingTransposer;
 
-        if (vcam.Follow != null)
-            playerController = vcam.Follow.GetComponent<PlayerPlatformerController>();
-
-        if (transposer == null || playerController == null)
+        if (vcam.Follow == null)
         {
-            Debug.LogError("DynamicCameraOffset: Missing Transposer or Player. Disabling script.");
+            Debug.LogError("DanTheManCamera: Virtual Camera needs a Follow target (player).");
             enabled = false;
+            return;
         }
+
+        playerRb = vcam.Follow.GetComponent<Rigidbody2D>();
+        if (transposer == null || playerRb == null)
+        {
+            Debug.LogError("DanTheManCamera: Missing FramingTransposer or Rigidbody2D.");
+            enabled = false;
+            return;
+        }
+
+        currentOffset = transposer.m_TrackedObjectOffset;
+        targetOffset = currentOffset;
     }
 
     void LateUpdate()
     {
-        if (playerController == null || transposer == null)
-            return;
+        if (playerRb == null) return;
 
-        bool isRight = playerController.IsFacingRight();
+        float speedX = playerRb.velocity.x;
 
-        // Detect direction change
-        if (isRight != lastFacingRight)
+        // Horizontal lookahead (momentum based)
+        float lookAheadX = 0f;
+        if (Mathf.Abs(speedX) > velocityThreshold)
         {
-            flipTimer += Time.deltaTime;
-            if (flipTimer >= flipDelay)
-            {
-                lastFacingRight = isRight;
-                flipTimer = 0f;
-
-                float targetScreenX = isRight ? screenX_FacingRight : screenX_FacingLeft;
-
-                // Start smooth transition
-                if (transitionRoutine != null)
-                    StopCoroutine(transitionRoutine);
-                transitionRoutine = StartCoroutine(SmoothTransition(targetScreenX));
-            }
-        }
-        else
-        {
-            flipTimer = 0f; // reset if facing consistently
-        }
-    }
-
-    private IEnumerator SmoothTransition(float target)
-    {
-        float start = transposer.m_ScreenX;
-        float t = 0f;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / transitionDuration;
-            transposer.m_ScreenX = Mathf.Lerp(start, target, Mathf.SmoothStep(0, 1, t));
-            yield return null;
+            lookAheadX = Mathf.Sign(speedX) * Mathf.Lerp(0, maxLookAhead, Mathf.InverseLerp(0, 5f, Mathf.Abs(speedX)));
         }
 
-        transposer.m_ScreenX = target;
+        // Target offset (with ground bias)
+        targetOffset = new Vector3(lookAheadX, verticalOffset, 0f);
+
+        // Smoothly interpolate
+        currentOffset.x = Mathf.Lerp(currentOffset.x, targetOffset.x, Time.deltaTime * horizontalDamping);
+        currentOffset.y = Mathf.Lerp(currentOffset.y, targetOffset.y, Time.deltaTime * verticalDamping);
+
+        transposer.m_TrackedObjectOffset = currentOffset;
     }
 }
